@@ -1,6 +1,6 @@
 """Observe -> Analyze -> Act multi-agent swarm.
 
-OBSERVE : Agent 1 parses the spoken transcript (Gemini 2.5 Pro, or the built-in
+OBSERVE : Agent 1 parses the spoken transcript (Gemini 3.1 Flash-Lite, or the built-in
           demo parser when no API key is configured).
 ANALYZE : Agent 2 plans the task DAG; Agent 8 asks for clarification if needed.
 ACT     : Agents 3-7 call the MCP hub (CRM, inventory, approval, billing).
@@ -16,7 +16,7 @@ from database import get_workflow, save_workflow, update_workflow_approval, utc_
 from mcp_hub import EnterpriseMCPHub
 
 APPROVAL_THRESHOLD_INR = float(os.getenv("APPROVAL_THRESHOLD_INR", "5000"))
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-pro")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.1-flash-lite")
 
 SKU_CATALOG = {
     "Rotary Compressor": "DKN-CMP-20T",
