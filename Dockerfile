@@ -1,5 +1,5 @@
 # Build from the REPO ROOT so both backend/ and frontend/ are in the context:
-#   docker build -f backend/Dockerfile -t trinetra-voiceops-ai .
+#   docker build -f Dockerfile -t trinetra-voiceops-ai .
 FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
