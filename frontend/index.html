@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TRINETRA VoiceOps AI | Team TRINESH</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background-color: #0B0F19; color: #F8FAFC; font-family: 'Inter', system-ui, sans-serif; }
+    .card { background-color: #141B2D; border: 1px solid #1E293B; }
+    .pulse-ring { animation: pulse 1.6s infinite; }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.65); }
+      70% { box-shadow: 0 0 0 18px rgba(0, 212, 255, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0); }
+    }
+  </style>
+</head>
+<body class="min-h-screen p-4 md:p-6">
+  <header class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4 pb-5 border-b border-slate-800">
+    <div>
+      <div class="flex items-center gap-3">
+        <span class="px-2.5 py-0.5 text-xs font-bold tracking-wider uppercase rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
+          Team TRINESH - Build with Google Gemini
+        </span>
+        <span id="engineBadge" class="text-xs text-slate-400">Ready</span>
+      </div>
+      <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight mt-1">
+        TRINETRA <span class="text-cyan-400">VoiceOps AI</span>
+      </h1>
+      <p class="text-xs text-slate-400">Observe (voice + Gemini) - Analyze (Gemini 2.5 Pro) - Act (8-Agent MCP Swarm)</p>
+    </div>
+    <button onclick="resetDemo()" class="px-3.5 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
+      Reset Demo State
+    </button>
+  </header>
+
+  <main class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6">
+    <section class="lg:col-span-5 card rounded-2xl p-5 flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-xs font-bold uppercase tracking-wider text-cyan-400">Field Technician HUD</span>
+          <span class="text-xs px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+            Voiceprint: Ravi Kumar (demo)
+          </span>
+        </div>
+
+        <div class="flex flex-col items-center justify-center py-6 bg-slate-900/70 rounded-xl border border-slate-800">
+          <button id="micBtn" onclick="toggleVoice()" class="w-20 h-20 rounded-full bg-gradient-to-tr from-blue-600 to-cyan-400 flex items-center justify-center text-slate-950 font-bold shadow-lg transition transform hover:scale-105">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-9 h-9" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+            </svg>
+          </button>
+          <p id="micStatus" class="text-xs text-slate-300 mt-3 font-medium">Tap mic to speak (English / Hinglish)</p>
+        </div>
+
+        <div class="mt-4">
+          <label class="text-xs font-semibold text-slate-400">Spoken Transcript / Command Input</label>
+          <textarea id="transcriptInput" rows="2" class="w-full mt-1.5 p-3 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400" placeholder="e.g., Customer 102 ka AC repair completed. Replaced the rotary compressor."></textarea>
+          <button onclick="sendCommand()" class="w-full mt-2 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-sm transition">
+            Execute TRINETRA Swarm
+          </button>
+        </div>
+
+        <div class="mt-4 pt-4 border-t border-slate-800">
+          <p class="text-xs font-semibold text-slate-400 mb-2">Quick Demo Scenario Prompts:</p>
+          <div class="space-y-2">
+            <button onclick="runPreset('Customer 102 ka AC repair completed. Replaced the rotary compressor.')" class="w-full text-left p-2.5 rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-slate-800 text-xs text-slate-300">
+              <span class="text-cyan-400 font-bold">Step 1 (Missing Serial):</span> "Customer 102 ka AC repair completed. Replaced the rotary compressor."
+            </button>
+            <button onclick="runPreset('Customer 102 ka AC repair completed. Replaced the rotary compressor, serial number DKN-99421.')" class="w-full text-left p-2.5 rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-slate-800 text-xs text-slate-300">
+              <span class="text-emerald-400 font-bold">Step 2 (With Serial #):</span> "Customer 102 ka AC repair completed. Replaced the rotary compressor, serial number DKN-99421."
+            </button>
+            <button onclick="runPreset('Customer 105 repair completed. Replaced two capacitors.')" class="w-full text-left p-2.5 rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-slate-800 text-xs text-slate-300">
+              <span class="text-purple-400 font-bold">Auto-Approve Flow:</span> "Customer 105 repair completed. Replaced two capacitors."
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="voiceReplyBox" class="hidden mt-4 p-3.5 rounded-xl bg-blue-950/50 border border-blue-500/40">
+        <p class="text-[11px] font-bold uppercase tracking-wider text-cyan-400">TRINETRA Voice Response</p>
+        <p id="voiceReplyText" class="text-sm text-white mt-1"></p>
+      </div>
+    </section>
+
+    <section class="lg:col-span-7 space-y-6">
+      <div class="grid grid-cols-3 gap-3">
+        <div class="card p-3.5 rounded-xl border-slate-800">
+          <p class="text-[11px] font-bold text-cyan-400">EYE 1: OBSERVE</p>
+          <p class="text-xs text-slate-300 mt-0.5">Voice + Gemini parsing</p>
+        </div>
+        <div class="card p-3.5 rounded-xl border-slate-800">
+          <p class="text-[11px] font-bold text-purple-400">EYE 2: ANALYZE</p>
+          <p class="text-xs text-slate-300 mt-0.5">Gemini 2.5 Pro Reasoning</p>
+        </div>
+        <div class="card p-3.5 rounded-xl border-slate-800">
+          <p class="text-[11px] font-bold text-emerald-400">EYE 3: ACT</p>
+          <p class="text-xs text-slate-300 mt-0.5">8-Agent MCP Swarm</p>
+        </div>
+      </div>
+
+      <div class="card rounded-2xl p-5">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-200">Live Agent Swarm Execution Trace</h2>
+          <span id="traceBadge" class="text-xs font-mono text-slate-400">Waiting for voice input...</span>
+        </div>
+        <div id="agentLogs" class="space-y-2 max-h-60 overflow-y-auto text-xs">
+          <p class="text-slate-500 italic">Speak or click a preset scenario on the left to watch the 8 agents execute.</p>
+        </div>
+
+        <div id="approvalCard" class="hidden mt-4 p-4 rounded-xl bg-amber-500/10 border border-amber-500/40 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p class="text-xs font-bold uppercase text-amber-400">Manager HITL Approval Required (&gt; Rs 5,000)</p>
+            <p id="approvalDetails" class="text-xs text-slate-200 mt-0.5"></p>
+          </div>
+          <button id="approveBtn" class="px-4 py-2 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs transition">
+            Approve Warranty &amp; Close Ticket
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="card rounded-2xl p-4">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-2">CRM Tickets (MCP-Salesforce)</h3>
+          <div id="crmTable" class="space-y-2 text-xs"></div>
+        </div>
+        <div class="card rounded-2xl p-4">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-purple-400 mb-2">Van Stock (MCP-SAP ERP)</h3>
+          <div id="invTable" class="space-y-2 text-xs"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    let recognition = null;
+    let listening = false;
+
+    // Escape anything that came from the server/LLM before putting it in innerHTML
+    const esc = (v) => String(v ?? '').replace(/[&<>"']/g, c => (
+      { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+    async function api(path, method = 'GET', body) {
+      const res = await fetch(path, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: body ? JSON.stringify(body) : undefined
+      });
+      if (!res.ok) {
+        let detail = res.statusText;
+        try { detail = (await res.json()).detail || detail; } catch (_) {}
+        throw new Error(detail);
+      }
+      return res.json();
+    }
+
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new SpeechRec();
+      recognition.lang = 'en-IN';
+      recognition.interimResults = false;
+      recognition.onresult = (e) => {
+        document.getElementById('transcriptInput').value = e.results[0][0].transcript;
+        sendCommand();
+      };
+      recognition.onend = () => {
+        listening = false;
+        document.getElementById('micBtn').classList.remove('pulse-ring');
+        document.getElementById('micStatus').innerText = 'Tap mic to speak (English / Hinglish)';
+      };
+    }
+
+    function toggleVoice() {
+      if (!recognition) {
+        alert('Browser SpeechRecognition not supported here. Use the text box or preset buttons!');
+        return;
+      }
+      if (!listening) {
+        listening = true;
+        recognition.start();
+        document.getElementById('micBtn').classList.add('pulse-ring');
+        document.getElementById('micStatus').innerText = 'Listening... Speak now';
+      } else {
+        recognition.stop();
+      }
+    }
+
+    function speakText(text) {
+      if ('speechSynthesis' in window && text) {
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'en-IN';
+        window.speechSynthesis.speak(utter);
+      }
+    }
+
+    function runPreset(text) {
+      document.getElementById('transcriptInput').value = text;
+      sendCommand();
+    }
+
+    function showError(msg) {
+      document.getElementById('traceBadge').innerText = 'Error';
+      document.getElementById('agentLogs').innerHTML =
+        `<p class="text-red-400">Request failed: ${esc(msg)}</p>`;
+    }
+
+    async function sendCommand() {
+      const transcript = document.getElementById('transcriptInput').value.trim();
+      if (!transcript) return;
+      document.getElementById('traceBadge').innerText = 'Running 8-Agent Swarm...';
+
+      let data;
+      try {
+        data = await api('/api/voice-command', 'POST', { transcript });
+      } catch (err) { return showError(err.message); }
+
+      document.getElementById('engineBadge').innerText = data.engine_used || '';
+      document.getElementById('traceBadge').innerText = `Trace: ${data.trace_id} (${data.state})`;
+
+      if (data.voice_reply) {
+        document.getElementById('voiceReplyBox').classList.remove('hidden');
+        document.getElementById('voiceReplyText').innerText = data.voice_reply;
+        speakText(data.voice_reply);
+      }
+      renderLogs(data.logs || []);
+
+      const approvalCard = document.getElementById('approvalCard');
+      if (data.state === 'PENDING_MANAGER_APPROVAL') {
+        approvalCard.classList.remove('hidden');
+        document.getElementById('approvalDetails').innerText =
+          `Invoice ${data.invoice_id} | Parts Value: Rs ${data.parts_cost_inr} | Audit: ${data.audit_hash.slice(0, 14)}...`;
+        document.getElementById('approveBtn').onclick = () => approveWorkflow(data.trace_id);
+      } else {
+        approvalCard.classList.add('hidden');
+      }
+      loadDashboard();
+    }
+
+    async function approveWorkflow(traceId) {
+      let data;
+      try {
+        data = await api(`/api/approve/${encodeURIComponent(traceId)}`, 'POST');
+      } catch (err) { return showError(err.message); }
+      document.getElementById('approvalCard').classList.add('hidden');
+      document.getElementById('traceBadge').innerText = `Trace: ${traceId} (CLOSED)`;
+      if (data.voice_reply) {
+        document.getElementById('voiceReplyText').innerText = data.voice_reply;
+        speakText(data.voice_reply);
+      }
+      renderLogs(data.logs || []);
+      loadDashboard();
+    }
+
+    function renderLogs(logs) {
+      document.getElementById('agentLogs').innerHTML = logs.map(l => {
+        const color = l.eye === 'OBSERVE' ? 'text-cyan-400' : (l.eye === 'ANALYZE' ? 'text-purple-400' : 'text-emerald-400');
+        return `<div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+          <div class="flex justify-between font-bold">
+            <span class="${color}">[${esc(l.eye)}] ${esc(l.agent)}</span>
+          </div>
+          <p class="text-slate-300 mt-0.5">${esc(l.status)}</p>
+        </div>`;
+      }).join('');
+    }
+
+    async function loadDashboard() {
+      let data;
+      try { data = await api('/api/dashboard'); } catch (err) { return; }
+
+      document.getElementById('crmTable').innerHTML = data.tickets.map(t => `
+        <div class="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800">
+          <div class="flex justify-between font-bold">
+            <span>${esc(t.ticket_id)} (Cust #${esc(t.customer_id)})</span>
+            <span class="${t.status === 'CLOSED' ? 'text-emerald-400' : 'text-amber-400'}">${esc(t.status)}</span>
+          </div>
+          <p class="text-slate-400 mt-0.5">${esc(t.customer_name)} - ${esc(t.equipment)}</p>
+          <p class="text-slate-300 mt-1">${esc(t.summary)}</p>
+        </div>
+      `).join('');
+
+      document.getElementById('invTable').innerHTML = data.inventory.map(i => `
+        <div class="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex justify-between items-center">
+          <div>
+            <p class="font-bold text-slate-200">${esc(i.sku)}</p>
+            <p class="text-slate-400">${esc(i.part_name)} (Rs ${esc(i.unit_price_inr)})</p>
+            ${i.reorder_triggered ? '<span class="text-[10px] font-bold text-amber-400">AUTO-RESTOCK PO TRIGGERED</span>' : ''}
+          </div>
+          <span class="px-2.5 py-1 rounded font-bold ${i.van_stock === 0 ? 'bg-red-500/20 text-red-400' : 'bg-emerald-500/20 text-emerald-400'}">
+            Stock: ${esc(i.van_stock)}
+          </span>
+        </div>
+      `).join('');
+    }
+
+    async function resetDemo() {
+      try { await api('/api/reset-demo', 'POST'); } catch (err) { return showError(err.message); }
+      document.getElementById('approvalCard').classList.add('hidden');
+      document.getElementById('voiceReplyBox').classList.add('hidden');
+      document.getElementById('traceBadge').innerText = 'Waiting for voice input...';
+      document.getElementById('agentLogs').innerHTML = '<p class="text-slate-500 italic">Demo reset. Ready for live voice run.</p>';
+      loadDashboard();
+    }
+
+    loadDashboard();
+  </script>
+</body>
+</html>
